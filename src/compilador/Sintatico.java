@@ -411,14 +411,7 @@ public class Sintatico{
         
        //Manda a expressao para ser avaliada no posFixa e salva o resulta em outro arrayList
        listaExpressaoSaida = sem.posFixa(listaExpressao);
-       
-       //for(int i=0; i<listaExpressaoSaida.size(); i++){
-       
-            //System.out.println(listaExpressaoSaida.get(i));
            
-       //}
-       
-        
         if("sentao".equals(tok.getSimbolo())){
         
             tok = lex.retornaToken();

@@ -142,20 +142,20 @@ public class Semantico {
      
             
          // Se a pilha estiver vazia 
-         if(" ".equals(pilha.peek()) &&
+         if((" ".equals(pilha.peek()) || "(".equals(pilha.peek())) &&
             ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
-             "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
-             ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
-             ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i)) ||
-             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)))){
+             "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))   ||
+             ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i))   ||
+             ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i))  ||
+             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i))) ||
+             "(".equals(listaExpressao.get(i))){
          
              
-                pilha.add(listaExpressao.get(i));
+                pilha.push(listaExpressao.get(i));
              
          }     
          
-       
-          if("+".equals(pilha.peek()) || "-".equals(pilha.peek()) &&
+          else if("+".equals(pilha.peek()) || "-".equals(pilha.peek()) &&
             ("(".equals(listaExpressao.get(i)) || "*".equals(listaExpressao.get(i)) || 
              "div".equals(listaExpressao.get(i)) || "+".equals(listaExpressao.get(i)) ||
              "-".equals(listaExpressao.get(i)))){
@@ -164,9 +164,7 @@ public class Semantico {
              
          }
          
-        
-         // Se o topo da pilha for igual a "("
-         if("(".equals(pilha.peek()) &&
+         else if("*".equals(pilha.peek()) || "div".equals(pilha.peek()) &&
             ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
              "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
              ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
@@ -177,45 +175,54 @@ public class Semantico {
              
          }
          
-         if("*".equals(pilha.peek()) || "div".equals(pilha.peek()) &&
-            ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
-             "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
-             ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
-             ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i)) ||
-             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)))){
-         
-                pilha.push(listaExpressao.get(i));
+         else if("*".equals(pilha.peek()) && "*".equals(listaExpressao.get(i)) ){
+             
+             listaSaida.add(pilha.peek());
+             pilha.pop();
              
          }
          
-         if(")".equals(pilha.peek())){
+         //Se encontrar um fecha patrenteses  
+         else if(")".equals(listaExpressao.get(i))){
          
             while(!"(".equals(pilha.peek())){
-            
-                pilha.pop();
+                
                 listaSaida.add(pilha.peek());
+                pilha.pop();
             
             }
+            //Para tirar o abre parenteses da pilha
+            pilha.pop();
+         } 
+         
+         else{
+         
+             listaSaida.add(listaExpressao.get(i));
          }
-         
         
-         listaSaida.add(listaExpressao.get(i));
-      
     }
+     
+     // Desmpilha a pilha até encontrar o vazio
+     while(!" ".equals(pilha.peek())){
+     
+         listaSaida.add(pilha.peek());
+         pilha.pop();
          
-         
-       
+     }
+ 
      
     for(int z=0; z< listaSaida.size(); z++){
          
       System.out.println(listaSaida.get(z));
       
     }
-          
+    
+    System.out.println("\n \n");
           
     return listaSaida;
   
- 
+
+    
  }
 
 }
