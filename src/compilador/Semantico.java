@@ -141,14 +141,14 @@ public class Semantico {
      for(int i=0; i<listaExpressao.size(); i++){
      
             
-         // Se a pilha estiver vazia 
+         // Se o topo da pilha estiver vazia ou com '(', pode inserir qualquer coisa na pilha
          if((" ".equals(pilha.peek()) || "(".equals(pilha.peek())) &&
-            ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
+             ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
              "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))   ||
              ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i))   ||
              ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i))  ||
-             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i))) ||
-             "(".equals(listaExpressao.get(i))){
+             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)) ||
+             "(".equals(listaExpressao.get(i)))){
          
              
                 pilha.push(listaExpressao.get(i));
@@ -164,22 +164,22 @@ public class Semantico {
              
          }
          
-         else if("*".equals(pilha.peek()) || "div".equals(pilha.peek()) &&
-            ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
-             "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
+          //Se o topo da pilha estiver com '*' ou 'div'
+         else if(("*".equals(pilha.peek()) || "div".equals(pilha.peek())) && 
+             ("+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
              ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
              ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i)) ||
              "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)))){
          
-                pilha.push(listaExpressao.get(i));
+                listaSaida.add(pilha.peek()); //Adiciona o topo da pilha na lista de saida (+,-,>,<,>=,<=,=,!=)
+                pilha.pop(); //Desempilha o '*' ou 'div' do topo da pilha
+                pilha.push(listaExpressao.get(i)); //Adiciona o simbolo menos prioritário na pilha
              
          }
          
-         else if("*".equals(pilha.peek()) && "*".equals(listaExpressao.get(i)) ){
+         else if("*".equals(pilha.peek()) && "(".equals(listaExpressao.get(i)) ){
              
-             listaSaida.add(pilha.peek());
-             pilha.pop();
-             
+             pilha.push(listaExpressao.get(i));
          }
          
          //Se encontrar um fecha patrenteses  

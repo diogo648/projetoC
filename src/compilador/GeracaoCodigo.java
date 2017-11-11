@@ -5,7 +5,8 @@
  */
 package compilador;
 
-import java.io.File;
+
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -18,17 +19,19 @@ public class GeracaoCodigo {
     PrintWriter escrever = null;
     
     public GeracaoCodigo() throws IOException{
-    
+   
         
-        escrever = new PrintWriter("programa_assembly.txt", "UTF-8");
 
     }
     
    
-    public void addComando(String comando){
+    public void addComando(String comando, String v1, String v2) throws IOException{
         
-        escrever.println(comando);
-            
+        String nomeArquivo= "C:\\Users\\Diogo\\Desktop\\saida.txt";
+        try (FileWriter fw = new FileWriter(nomeArquivo,true)) {
+            fw.write(comando + " " + v1 + " " + v2 + "\n");
+        }
+          
     }
     
 }

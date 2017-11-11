@@ -2,16 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/Simbolos/Procedimento.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/Simbolos/Programa.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/Interface/Interface.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/Simbolos/Simbolo.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/Simbolos/Funcao.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/Simbolos/Variavel.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/compilador/Semantico.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/compilador/Sintatico.java</file>
-            <file>file:/C:/Users/Diogo/Documents/NetBeansProjects/Compilador/src/compilador/Lexico.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
