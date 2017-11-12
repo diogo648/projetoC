@@ -25,16 +25,12 @@ public class Variavel extends Simbolo  {
    
     }
    
-   /*
-    @Override   
-    public String toString() {
-        
-        return ("Lexema:"          + " " + this.lexema + "\n" +
-                "Tipo:"            + " " + this.tipo   + "\n" +
-                "Endereço Memória" + " " + this.endMem );
-                   
+   
+   
+   public int getEndMem(){
+   
+       return endMem;
    }
-    
-   */
+ 
    
 }

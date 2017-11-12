@@ -58,19 +58,24 @@ public class Semantico {
  }
  
  //Como parâmetro utiliza o lexema para fazer a consulta na Tabela de Símbolos 
- public Simbolo consultaTabela(String lexema){
+ public int consultaTabela(String lexema){
      
+
     for(int i=0; i<simbolos.size(); i++){
-     
-         if(sim.getLexema().equals(lexema)){
-         
-             return sim;
-         }
-     
-     }
-     return null;
     
- }
+         Object obj = simbolos.get(i);
+         
+         if(lexema.equals(simbolos.get(i).getLexema())){
+             
+             Variavel var = (Variavel) obj;
+             return var.getEndMem();
+         
+         }
+    }
+    
+     return 0;
+}
+     
  
  //Percorre a tabela do final para o começo substituindo todos os campos tipo que possuem o valor variável pelo tipo agora localizado
  public void colocaTipoVariavel(String tipo){
@@ -142,13 +147,13 @@ public class Semantico {
      
             
          // Se o topo da pilha estiver vazia ou com '(', pode inserir qualquer coisa na pilha
-         if((" ".equals(pilha.peek()) || "(".equals(pilha.peek())) &&
+         if((" ".equals(pilha.peek()) || "(".equals(pilha.peek()) || "e".equals(pilha.peek())  ) &&
              ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
              "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))   ||
              ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i))   ||
              ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i))  ||
              "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)) ||
-             "(".equals(listaExpressao.get(i)))){
+             "(".equals(listaExpressao.get(i)) || "e".equals(listaExpressao.get(i)))){
          
              
                 pilha.push(listaExpressao.get(i));
@@ -163,6 +168,7 @@ public class Semantico {
                 pilha.push(listaExpressao.get(i));
              
          }
+        
          
           //Se o topo da pilha estiver com '*' ou 'div'
          else if(("*".equals(pilha.peek()) || "div".equals(pilha.peek())) && 
