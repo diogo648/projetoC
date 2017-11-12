@@ -75,6 +75,30 @@ public class Semantico {
     
      return 0;
 }
+ 
+    /**
+     *
+     * @param tipo
+     * @return
+     */
+    public int removeTabela(String tipo){
+     
+     int variaveisRetiradas =0;
+     
+     int i=simbolos.size()-1;
+     
+     while(!simbolos.get(i).getTipo().equals(tipo) ){
+         
+        simbolos.remove(i);
+        i--;
+        variaveisRetiradas++;            
+     }
+     
+     return variaveisRetiradas;
+}
+ 
+ 
+ 
      
  
  //Percorre a tabela do final para o começo substituindo todos os campos tipo que possuem o valor variável pelo tipo agora localizado
