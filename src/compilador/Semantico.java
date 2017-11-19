@@ -23,6 +23,11 @@ public class Semantico {
  private Simbolo sim;
  //Variavél que conterá o endereço de memória das variáveis declaradas no programa
  private int endVar=0;
+ 
+ 
+ //Variável que contará o número de labels
+ private int controlaLabel=0;
+ 
 
     
  public void insereTabela(String lexema, String tipo, boolean escopo) {
@@ -42,10 +47,11 @@ public class Semantico {
      }
      
      if("funcao".equals(tipo)){
+         
+         controlaLabel++;
+         simbolos.add(new Funcao(lexema, tipo, escopo, "L"+controlaLabel));
      
-         String labelFunc="";
-         simbolos.add(new Funcao(lexema, tipo, escopo, labelFunc));
-     
+         
      }
      
      
@@ -76,30 +82,51 @@ public class Semantico {
      return 0;
 }
  
+  //Como parâmetro utiliza o lexema para fazer a consulta na Tabela de Símbolos 
+ public String consultaTipo(String lexema){
+     
+
+    for(int i=0; i<simbolos.size(); i++){
+    
+        
+         
+         if(lexema.equals(simbolos.get(i).getLexema())){
+     
+             return simbolos.get(i).getTipo();
+         
+         }
+    }
+    
+     return null;
+}
+ 
     /**
      *
      * @param tipo
      * @return
      */
-    public int removeTabela(String tipo){
+    public int removeTabela(){
      
      int variaveisRetiradas =0;
      
      int i=simbolos.size()-1;
      
-     while(!simbolos.get(i).getTipo().equals(tipo) ){
+     while(!simbolos.get(i).getTipo().equals("nomedeprograma")){
          
-        simbolos.remove(i);
-        i--;
-        variaveisRetiradas++;            
+         
+         if(simbolos.get(i).getEscopo() == false){
+         
+                variaveisRetiradas++;
+         }
+         
+          simbolos.remove(i);
+          i--;
      }
      
      return variaveisRetiradas;
 }
  
- 
- 
-     
+   
  
  //Percorre a tabela do final para o começo substituindo todos os campos tipo que possuem o valor variável pelo tipo agora localizado
  public void colocaTipoVariavel(String tipo){
@@ -107,9 +134,14 @@ public class Semantico {
      for(int i=0; i<simbolos.size(); i++){
         
         //Se for variável/funcao coloca o tipo passado no método
-        if(("variavel".equals(sim.getTipo()) || "funcao".equals(sim.getTipo()))  && ("inteiro".equals(tipo) || "booleano".equals(tipo))){
+        if("variavel".equals(simbolos.get(i).getTipo())){
          
-             sim.setTipo(tipo);
+           Object obj = simbolos.get(i);
+      
+           Variavel var = (Variavel) obj;
+              
+            var.setTipo(tipo);
+             
          }
          
      }
@@ -157,6 +189,37 @@ public class Semantico {
  }
  
  
+ //Consulta se variável está declarada e o seu tipo
+ public void validaExpresao(ArrayList<String> listaExpressao){
+ 
+     for(int i=0; i<listaExpressao.size(); i++){
+         
+         if(Character.isLetter(listaExpressao.get(i).charAt(0))){
+         
+            int z =simbolos.size()-1; 
+            
+                while(simbolos.get(z).getEscopo() != true){
+            
+                    if(listaExpressao.get(i).equals(simbolos.get(i).getLexema())){
+                        
+                       
+                        
+                    }
+                
+                    z--;
+                }
+                
+            }
+         
+         }
+             
+            
+    
+         
+     }
+     
+    
+ 
  public ArrayList<String> posFixa(ArrayList<String> listaExpressao){
  
      
@@ -171,7 +234,7 @@ public class Semantico {
      
             
          // Se o topo da pilha estiver vazia ou com '(', pode inserir qualquer coisa na pilha
-         if((" ".equals(pilha.peek()) || "(".equals(pilha.peek()) || "e".equals(pilha.peek())  ) &&
+         if((" ".equals(pilha.peek()) || "(".equals(pilha.peek()) || "e".equals(pilha.peek())) &&
              ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
              "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))   ||
              ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i))   ||
@@ -184,7 +247,7 @@ public class Semantico {
              
          }     
          
-          else if("+".equals(pilha.peek()) || "-".equals(pilha.peek()) &&
+          else if(("+".equals(pilha.peek()) || "-".equals(pilha.peek())) &&
             ("(".equals(listaExpressao.get(i)) || "*".equals(listaExpressao.get(i)) || 
              "div".equals(listaExpressao.get(i)) || "+".equals(listaExpressao.get(i)) ||
              "-".equals(listaExpressao.get(i)))){
@@ -192,6 +255,19 @@ public class Semantico {
                 pilha.push(listaExpressao.get(i));
              
          }
+          
+         else if((">=".equals(pilha.peek()) || "<=".equals(pilha.peek()) ||
+                  "=".equals(pilha.peek()) || "!=".equals(pilha.peek()) ||
+                  ">".equals(pilha.peek()) || "<".equals(pilha.peek())) && 
+                  (">=".equals(listaExpressao.get(i)) || ">=".equals(listaExpressao.get(i)) ||
+                   "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)) ||
+                   ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
+                   "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
+                   ">=".equals(listaExpressao.get(i)) || ">=".equals(listaExpressao.get(i)) ||
+                   "(".equals(listaExpressao.get(i)))){
+                      
+                      pilha.push(listaExpressao.get(i));
+          }
         
          
           //Se o topo da pilha estiver com '*' ou 'div'

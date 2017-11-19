@@ -26,11 +26,17 @@ public class Variavel extends Simbolo  {
     }
    
    
-   
    public int getEndMem(){
    
        return endMem;
    }
+   
+       
+    
+    public void setTipo(String tipo){
+    
+        this.tipo = tipo;
+    }
  
    
 }

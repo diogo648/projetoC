@@ -386,7 +386,7 @@ public class Lexico {
             if(caracter == '='){
                 
                 operadorRelacional = operadorRelacional + caracter;
-                tok.setSimbolo("smaiorrig");
+                tok.setSimbolo("smaiorig");
                 tok.setLexema(operadorRelacional); 
                 
                 caracter =(char)in.read();

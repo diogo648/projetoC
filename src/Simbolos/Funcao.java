@@ -25,14 +25,11 @@ public class Funcao extends Simbolo {
    
     }
     
-    /*
-    @Override   
-    public String toString() {
-        
-        return ("Lexema:"          + " " + this.lexema + "\n" +
-                "Tipo:"            + " " + this.tipo);
-                   
-   }
-    */
+    @Override
+    public String getTipo(){
+    
+        return tipo;
+    }
+    
     
 }

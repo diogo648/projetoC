@@ -39,13 +39,7 @@ public class Simbolo  {
     
         return escopo;
     }
-    
-    
-    public void setTipo(String tipo){
-    
-        this.tipo = tipo;
-    }
-    
 
+   
     
 }
