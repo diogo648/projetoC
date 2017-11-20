@@ -18,7 +18,7 @@ public class Lexico {
     private char caracter; //Declaração da variável caracter
     private BufferedReader in;
     private FileReader arquivo;
-    private int linhaErro;
+    public int linhaErro;
     
     Token tok = new Token();
  

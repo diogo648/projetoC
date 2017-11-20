@@ -5,6 +5,7 @@
  */
 package Interface;
 
+import Excecoes.ExcecaoSemantico;
 import compilador.Sintatico;
 import compilador.Lexico;
 import java.io.BufferedReader;
@@ -195,15 +196,19 @@ public class Interface extends javax.swing.JFrame {
              JOptionPane.showMessageDialog(null,"Arquivo não carregado!", "Erro", JOptionPane.ERROR_MESSAGE);
         }
         
-         catch (NullPointerException e) {
-        
-             jTextArea2.setText("Programa incompleto!");
-        }
         
         catch (Exception e) {
         
              jTextArea2.setText(e.getMessage());
         }
+        
+      
+        
+       //  catch (NullPointerException e) {
+        
+         //    jTextArea2.setText("Programa incompleto!");
+        //}
+        
         
         
     }//GEN-LAST:event_jButton1ActionPerformed

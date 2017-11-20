@@ -37,6 +37,12 @@ public class Variavel extends Simbolo  {
     
         this.tipo = tipo;
     }
+    
+    public String getTipoVar(){
+    
+        return this.tipo;
+        
+    }
  
    
 }

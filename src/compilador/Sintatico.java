@@ -5,6 +5,7 @@
  */
 package compilador;
 
+import Excecoes.ExcecaoSemantico;
 import java.util.ArrayList;
 
 /**
@@ -30,8 +31,10 @@ public class Sintatico{
     int controlaLabel=1;
     
     //Variável que receberá o novo valor na atribuição
-    
     String varAtrib;
+    
+    //Resposável por indicar se a expressão está integra ou não
+    String tipoFinal;
         
         public Sintatico(String caminhoArquivo) throws Exception{
           
@@ -314,6 +317,7 @@ public class Sintatico{
    
     private void analisaAtribChprocedimento() throws Exception{
         
+        //Salva a variável que receberá a atribuição
         varAtrib = tok.getLexema();
         
         //Lê o próximo Token
@@ -484,6 +488,10 @@ public class Sintatico{
         tok = lex.retornaToken();
         
         analisaExpressao();
+        
+        //Manda a expressão para ser verificada (se as variáveis existem e se seus tipos são compatíveis)
+        sem.validaExpresao(listaExpressao);
+       
         
        //Manda a expressao para ser avaliada no posFixa e salva o resulta em um arrayList
        listaExpressaoSaida = sem.posFixa(listaExpressao);
@@ -849,18 +857,24 @@ public class Sintatico{
         
        analisaExpressao();
        
+       
        //Manda a expressao para ser avaliada no posFixa e salva o resulta em outro arrayList
        listaExpressaoSaida = sem.posFixa(listaExpressao);
        
-       
        //Método para analisar os comandos que passaram pelo método posFixa
        avaliaListaExpressao(listaExpressaoSaida);
-       
-   
+          
+       //Valida a expressao
+       tipoFinal = sem.validaExpresao(listaExpressao);
        
        //Consulta o tipo
        String tipo = sem.consultaTipo(varAtrib);
        
+       if(!tipoFinal.equals(tipo)){
+       
+           throw new ExcecaoSemantico("Tipos incompatíveis de variáveis!" + " Linha:" + lex.retornaLinhaErro() );
+           
+       }
        
           
        if("funcao".equals(tipo)){

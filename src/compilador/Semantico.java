@@ -5,6 +5,7 @@
  */
 package compilador;
 
+import Excecoes.ExcecaoSemantico;
 import Simbolos.Funcao;
 import Simbolos.Programa;
 import Simbolos.Simbolo;
@@ -24,9 +25,15 @@ public class Semantico {
  //Variavél que conterá o endereço de memória das variáveis declaradas no programa
  private int endVar=0;
  
+ //Variável do Lexico
+ private Lexico lex;
  
  //Variável que contará o número de labels
  private int controlaLabel=0;
+ 
+ //Tipo das expressões
+ String tipoPrincipal;
+
  
 
     
@@ -190,35 +197,87 @@ public class Semantico {
  
  
  //Consulta se variável está declarada e o seu tipo
- public void validaExpresao(ArrayList<String> listaExpressao){
- 
+ public String validaExpresao(ArrayList<String> listaExpressao) throws Exception{
+     
+     ArrayList<String> tipos = new ArrayList();
+     
+     Boolean entrou;
+   
+     
      for(int i=0; i<listaExpressao.size(); i++){
+         
+          entrou = false;
          
          if(Character.isLetter(listaExpressao.get(i).charAt(0))){
          
-            int z =simbolos.size()-1; 
-            
-                while(simbolos.get(z).getEscopo() != true){
-            
-                    if(listaExpressao.get(i).equals(simbolos.get(i).getLexema())){
-                        
-                       
-                        
-                    }
-                
-                    z--;
-                }
-                
-            }
-         
-         }
+             //Teste
+             if("div".equals(listaExpressao.get(i))){
+                 
+                //Não acontece nada, por o div é palavra reservada
+             }
+             
+             else if("e".equals(listaExpressao.get(i)) || "ou".equals(listaExpressao.get(i)) ){
+             
+                 tipos.add(listaExpressao.get(i));
+                 
+             }
              
             
-    
+             else{
+       
+                //Começa pelo topo da tabela de símbolos
+                int z =simbolos.size()-1; 
+
+                 while(simbolos.get(z).getEscopo() == false){
+
+
+
+                     if(listaExpressao.get(i).equals(simbolos.get(z).getLexema())){
+
+                        entrou = true; 
+                        Object obj = simbolos.get(z);
+
+                        Variavel var = (Variavel) obj;
+
+                        tipos.add(var.getTipoVar());
+                     }
+
+                     z--;
+
+                 }
+
+                 if(entrou == false){
+                  
+                     throw new ExcecaoSemantico("Variável " + "'" +listaExpressao.get(i) + "'" + " não declarada!" );
+                      
+                 }
+
+             }
+         }
+             
+         if(Character.isDigit(listaExpressao.get(i).charAt(0))){
+         
+             tipos.add("inteiro");
+             
+         }
          
      }
      
-    
+     for(int i=0; i<tipos.size(); i++ ){
+     
+      
+         tipoPrincipal = tipos.get(0);
+         
+         if(!tipoPrincipal.equals(tipos.get(i))){
+         
+             throw new ExcecaoSemantico("O operador lógico " + "'" +tipos.get(i) + "'" + " deve ser utilizado com Booleano!" );
+             
+         }
+        
+     }
+     
+      return tipoPrincipal;
+ }
  
  public ArrayList<String> posFixa(ArrayList<String> listaExpressao){
  
