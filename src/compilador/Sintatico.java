@@ -7,6 +7,7 @@ package compilador;
 
 import Excecoes.ExcecaoSemantico;
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  *
@@ -26,7 +27,7 @@ public class Sintatico{
     //Responsável por contar as variáveis declaradas no programa
     int contaVar=0;
     int endInicial=0;
-    
+   
     //Responsável por controlar a identificação dos labels
     int controlaLabel=1;
     
@@ -35,6 +36,9 @@ public class Sintatico{
     
     //Resposável por indicar se a expressão está integra ou não
     String tipoFinal;
+    
+    //Pilha para controlar Labels
+    Stack<String> pilhaLabels = new Stack<>();
         
         public Sintatico(String caminhoArquivo) throws Exception{
           
@@ -61,11 +65,13 @@ public class Sintatico{
                       
                       analisaBloco();
                       
-                      //Desaloca as variáveis do procedimento
+                      //Desaloca as variáveis
                       int variaveisRetiradas = sem.removeTabela();
                       
+                      endInicial = endInicial -  variaveisRetiradas;
+                      
                       //Adiciona no código de saída o comando 'DALLOC'
-                      geracao.addComando("DALLOC",Integer.toString(variaveisRetiradas),"");
+                      geracao.addComando("DALLOC",Integer.toString(endInicial),Integer.toString(variaveisRetiradas));
                       
                       if("sponto".equals(tok.getSimbolo())){
                           
@@ -191,7 +197,7 @@ public class Sintatico{
                 
                 else{
                     
-                    throw new Exception("Varíavel" + " '" + tok.getLexema() + "' " + "declarada mais de uma vez no escopo." + "Linha:" + lex.retornaLinhaErro());
+                    throw new ExcecaoSemantico("Varíavel" + " '" + tok.getLexema() + "' " + "declarada mais de uma vez no escopo." + "Linha:" + lex.retornaLinhaErro());
                 }
             }
             
@@ -442,6 +448,9 @@ public class Sintatico{
     
     private void analisaEnquanto() throws Exception{
         
+        //Adiciona no arquivo de saída o label
+       geracao.addComando("L" + controlaLabel,"NULL","");
+        
         //Retira os itens adicionados no arrayList
         listaExpressao.clear();
         
@@ -456,11 +465,14 @@ public class Sintatico{
        //Método para analisar os comandos que passaram pelo método posFixa
        avaliaListaExpressao(listaExpressaoSaida);
        
+       //Manda a expressão para ser verificada (se as variáveis existem e se seus tipos são compatíveis)
+        sem.ValidaExpressaoEnquanto(listaExpressaoSaida);
+       
        //Adiciona 1 na variável controla label
        controlaLabel++;
             
        //Adiciona no arquivo de saída o comando 'JMP' com seu label
-       geracao.addComando("JMP","L" + controlaLabel,"");
+       geracao.addComando("JMPF","L" + controlaLabel,"");
        
         if("sfaca".equals(tok.getSimbolo())){
             
@@ -468,7 +480,10 @@ public class Sintatico{
             tok = lex.retornaToken();
             
             analisaComandoSimples();
-        
+            
+            //Adiciona no arquivo de saída o 'JMP' com o seu label
+            geracao.addComando("JMP", "L"+(controlaLabel-1),"");
+            
         }
         
         else{
@@ -476,6 +491,9 @@ public class Sintatico{
             throw new Exception("Espera-se a palavra reservada 'faca'." + "Linha:" + lex.retornaLinhaErro());
         }
     
+        //Adiciona no arquivo de saída o label
+        geracao.addComando("L"+controlaLabel,"NULL","");
+        
     }
     
     
@@ -489,37 +507,42 @@ public class Sintatico{
         
         analisaExpressao();
         
-        //Manda a expressão para ser verificada (se as variáveis existem e se seus tipos são compatíveis)
-        sem.validaExpresao(listaExpressao);
-       
         
-       //Manda a expressao para ser avaliada no posFixa e salva o resulta em um arrayList
-       listaExpressaoSaida = sem.posFixa(listaExpressao);
+        //Manda a expressao para ser avaliada no posFixa e salva o resulta em um arrayList
+        listaExpressaoSaida = sem.posFixa(listaExpressao);
        
-       //Método para analisar os comandos que passaram pelo método posFixa
-       avaliaListaExpressao(listaExpressaoSaida);
+        //Método para analisar os comandos que passaram pelo método posFixa
+        avaliaListaExpressao(listaExpressaoSaida);
+        
+        //Manda a expressão para ser verificada (se as variáveis existem e se seus tipos são compatíveis)
+        sem.validaExpresaoSe(listaExpressaoSaida);
+        
+      
+
        
         if("sentao".equals(tok.getSimbolo())){
             
-            
+           
            //Adiciona no arquivo de saída o comando 'JMPF' com o labels
            geracao.addComando("JMPF","L"+controlaLabel,"");
            
-           //Incrementa 1 na variável controlaLabel
+            //Incrementa 1 na variável controlaLabel
            controlaLabel++;
            
             //Lê o próximo Token
             tok = lex.retornaToken();
             
             analisaComandoSimples();
-            
+           
             //Adiciona no arquivo de saída o comando 'JMP' com o label
            geracao.addComando("JMP","L"+controlaLabel,"");
            
             if("ssenao".equals(tok.getSimbolo())){
-                
+                  
+               
                 //Adiciona no arquivo de saída o comando 'JMP' com seu label
                 geracao.addComando("L"+(controlaLabel-1),"NULL","");
+               
                 
                 //Lê o próximo Token
                 tok = lex.retornaToken();
@@ -528,8 +551,12 @@ public class Sintatico{
             
             }
          
+            
            //Adiciona no arquivo de saída o comando 'JMP' com seu label
            geracao.addComando("L"+controlaLabel,"NULL","");
+           
+           //Incrementa 1 na variável controlaLabel
+            controlaLabel++;
           
         }
         
@@ -583,14 +610,21 @@ public class Sintatico{
             //Insere o procedimento na tabela de símbolos
             sem.insereTabela(tok.getLexema(),"procedimento",true);
             
+    
             //Adiciona no arquivo de saída o comando 'JMP' com seu label
             geracao.addComando("JMP","L" + controlaLabel,"");
             
-            //Adiciona 1 na variável controla label
+            //Salva o Label na pilha
+            pilhaLabels.add("L"+controlaLabel);
+          
+            //Incrementa 1
             controlaLabel++;
             
-            //Adiciona no arquivo de saída o comando 'JMP' com seu label
+            //Adiciona no arquivo de saída o label
             geracao.addComando("L"+controlaLabel,"NULL","");
+            
+            //Incrementa 1
+            controlaLabel++;   
             
             //Lê o próximo Token
             tok = lex.retornaToken();
@@ -600,27 +634,39 @@ public class Sintatico{
                     analisaBloco();
                     
                     //Desaloca as variáveis do procedimento
-                    int variaveisRetiradas = 30;//sem.removeTabela("procedimento");
-                      
+                    int variaveisRetiradas = sem.removeTabela();
+                    
+                    endInicial = endInicial -  variaveisRetiradas;
                     //Adiciona no código de saída o comando 'DALLOC'
-                    geracao.addComando("DALLOC",Integer.toString(variaveisRetiradas),"");
+                    geracao.addComando("DALLOC",Integer.toString(endInicial),Integer.toString(variaveisRetiradas));
                     
                     //Adiciona no código de saída o comando 'DALLOC'
                     geracao.addComando("RETURN","","");
                     
+                    //Adiciona no arquivo de saída o label
+                    geracao.addComando(pilhaLabels.peek(),"NULL","");
                     
+                    //Desempilha
+                    pilhaLabels.pop();
+                   
                 }
             
                 else{
             
-                    throw new Exception("Espera-se ';' (ponto e vírgula)" + "Linha:" + lex.retornaLinhaErro());
+                    throw new Exception("Espera-se ';' (ponto e vírgula)! " + "Linha: " + lex.retornaLinhaErro());
                 }
-            }        
+            }
+            
+            else{
+            
+                throw new ExcecaoSemantico("Procedimento: " + "'" + tok.getLexema() + "'" + " já declarado! " + "Linha: " + lex.retornaLinhaErro() );
+            
+            }
         }   
         
         else{
         
-            throw new Exception("Espera-se um identificador para o procedimento." + "Linha:" + lex.retornaLinhaErro());
+            throw new Exception("Espera-se um identificador para o procedimento. " + "Linha:" + lex.retornaLinhaErro());
         }
     
     }
@@ -723,7 +769,7 @@ public class Sintatico{
           
           //Lê o próximo Token
           tok = lex.retornaToken();
-
+          
       }   
       
         analisaTermo();
@@ -772,6 +818,7 @@ public class Sintatico{
           //Lê o próximo Token
           tok = lex.retornaToken();
       }
+     
       
       else if("snumero".equals(tok.getSimbolo())){
       
@@ -857,22 +904,28 @@ public class Sintatico{
         
        analisaExpressao();
        
-       
+    
        //Manda a expressao para ser avaliada no posFixa e salva o resulta em outro arrayList
        listaExpressaoSaida = sem.posFixa(listaExpressao);
-       
-       //Método para analisar os comandos que passaram pelo método posFixa
-       avaliaListaExpressao(listaExpressaoSaida);
           
        //Valida a expressao
        tipoFinal = sem.validaExpresao(listaExpressao);
        
+       //Método para analisar os comandos que passaram pelo método posFixa
+       avaliaListaExpressao(listaExpressaoSaida);
+       
        //Consulta o tipo
        String tipo = sem.consultaTipo(varAtrib);
        
+       if(tipo == null){
+       
+           throw new ExcecaoSemantico("Variável " + "'" + varAtrib + "'" + " não declarada!" + " Linha:" + lex.retornaLinhaErro());
+       
+       }
+       
        if(!tipoFinal.equals(tipo)){
        
-           throw new ExcecaoSemantico("Tipos incompatíveis de variáveis!" + " Linha:" + lex.retornaLinhaErro() );
+           throw new ExcecaoSemantico("Tipos incompatíveis de variáveis!" + " Variável: " + "'" + varAtrib + "'"  + "." + " Linha:" + lex.retornaLinhaErro() );
            
        }
        
@@ -910,13 +963,35 @@ public class Sintatico{
       //Resposável por guardar o endereço de memória da variável
       int endMem;
       
+      String unario ="";
+      String variavel ="";
+      
+      int z=0;
+      
       String tipo;
       
       for(int i=0; i<listaExpressao.size(); i++){
         
+       
         if("+".equals(listaExpressao.get(i))){
             //Adiciona no arquivo de saída o comando 'ADD'
             geracao.addComando("ADD","","");
+        }
+        
+        //Trata o unário
+        else if(listaExpressao.get(i).contains("^unario")){
+   
+            unario = tiraUnario(listaExpressao.get(i));
+            
+            //Consulta a posição de mémoria a variável na tabela de símbolos
+            endMem = sem.consultaTabela(unario);
+            
+             //Adiciona no arquivo de saída o comando 'LDV' com o valor
+            geracao.addComando("LDV",Integer.toString(endMem),"");
+            
+            //Adiciona no arquivo de saída o comando 'INV' 
+            geracao.addComando("INV","","");
+                         
         }
         
         else if("-".equals(listaExpressao.get(i))){
@@ -964,6 +1039,17 @@ public class Sintatico{
             geracao.addComando("AND","","");
         }
          
+        else if("verdadeiro".equals(listaExpressao.get(i))){
+            //Adiciona no arquivo de saída o comando 'AND'
+            geracao.addComando("LDC","1","");
+        }
+        
+         else if("falso".equals(listaExpressao.get(i))){
+            //Adiciona no arquivo de saída o comando 'AND'
+            geracao.addComando("LDC","0","");
+        }
+        
+        
         else if(Character.isLetter(listaExpressao.get(i).charAt(0))){
             
             tipo = sem.consultaTipo(listaExpressao.get(i));
@@ -975,12 +1061,16 @@ public class Sintatico{
             }
             
             else{
+                
+            
                 //Consulta a posição de mémoria a variável na tabela de símbolos
                 endMem = sem.consultaTabela(listaExpressao.get(i));
 
                 //Adiciona no arquivo de saída o comando 'LDV' com o valor
                 geracao.addComando("LDV",Integer.toString(endMem),"");
            }
+            
+  
         } 
          
         else if(Character.isDigit(listaExpressao.get(i).charAt(0))){
@@ -992,6 +1082,21 @@ public class Sintatico{
       }
       
   }
+  
+  
+  public String tiraUnario(String unario){
+ 
+     String semUnario="";
+     int i=0;
+     
+     while(unario.charAt(i) != '^'){
+     
+        semUnario = semUnario + unario.charAt(i);
+        i++;
+     }
+     
+     return semUnario;
+ }
   
   
   

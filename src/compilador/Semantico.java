@@ -34,8 +34,6 @@ public class Semantico {
  //Tipo das expressões
  String tipoPrincipal;
 
- 
-
     
  public void insereTabela(String lexema, String tipo, boolean escopo) {
      
@@ -118,18 +116,16 @@ public class Semantico {
      
      int i=simbolos.size()-1;
      
-     while(!simbolos.get(i).getTipo().equals("nomedeprograma")){
+    while(simbolos.get(i).getEscopo() == false){
          
-         
-         if(simbolos.get(i).getEscopo() == false){
-         
-                variaveisRetiradas++;
-         }
-         
-          simbolos.remove(i);
+        variaveisRetiradas++;
+        
+         simbolos.remove(i);
           i--;
-     }
-     
+    }
+         
+  
+       
      return variaveisRetiradas;
 }
  
@@ -176,14 +172,20 @@ public class Semantico {
  
  public boolean pesquisaDeclProc(String lexema){
  
-    for(int i=0; i<simbolos.size(); i++){
-        
-        if(simbolos.get(i).getLexema().equals(lexema)){
+       int i = simbolos.size()-1;
+     
+     //A condição de parada é a até achar o 'nomedeprograma'
+     while(!"nomedeprograma".equals(simbolos.get(i).getTipo()) ){
+    
+         if(simbolos.get(i).getLexema().equals(lexema)){
     
             return true;
-        }     
-    }
-   return false;
+        }
+       
+         i--;
+     }
+     
+     return false;
  }
  
  //Métodos criado para testes no compilador
@@ -216,6 +218,17 @@ public class Semantico {
                 //Não acontece nada, por o div é palavra reservada
              }
              
+             else if("verdadeiro".equals(listaExpressao.get(i))){
+                 
+                tipos.add("booleano");
+             }
+              
+             else if("falso".equals(listaExpressao.get(i))){
+                 
+                tipos.add("booleano");
+             }
+              
+             
              else if("e".equals(listaExpressao.get(i)) || "ou".equals(listaExpressao.get(i)) ){
              
                  tipos.add(listaExpressao.get(i));
@@ -228,7 +241,7 @@ public class Semantico {
                 //Começa pelo topo da tabela de símbolos
                 int z =simbolos.size()-1; 
 
-                 while(simbolos.get(z).getEscopo() == false){
+                 while(!"nomedeprograma".equals(simbolos.get(z).getTipo())){
 
 
 
@@ -279,8 +292,116 @@ public class Semantico {
       return tipoPrincipal;
  }
  
+
+ public void validaExpresaoSe(ArrayList<String> listaExpressao) throws Exception{
+     
+     Boolean valida = false;
+     String tipoVar="";
+     
+     for(int i=0; i<listaExpressao.size(); i++){
+         
+         if("e".equals(listaExpressao.get(i)) || "ou".equals(listaExpressao.get(i)) ){
+         
+             valida = false;
+         }
+         
+         else if("!=".equals(listaExpressao.get(i)) || "=".equals(listaExpressao.get(i)) ||
+            ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||     
+            "<=".equals(listaExpressao.get(i)) || ">=".equals(listaExpressao.get(i))){
+             
+             valida = true;
+             
+         }
+        
+         else if(Character.isLetter(listaExpressao.get(i).charAt(0)) && !"e".equals(listaExpressao.get(i)) && !"ou".equals(listaExpressao.get(i)) ){
+            
+            tipoVar = retornaTipo(listaExpressao.get(i));
+        
+        }
+        
+         else if(valida == true && "booleano".equals(tipoVar)){
+        
+            throw new ExcecaoSemantico("Variável do tipo: " + "'" + tipoVar + "'" + " incompatível na expressão!");
+        
+        }
+        
+     
+     }
+     
+     
+     
+}
+     
+ 
+ public void ValidaExpressaoEnquanto(ArrayList<String> listaExpressao) throws Exception{
+ 
+     Boolean valida = false;
+     String tipoVar="";
+     
+     
+     for(int i=0; i<listaExpressao.size(); i++){
+         
+         if("!=".equals(listaExpressao.get(i)) || "=".equals(listaExpressao.get(i)) ||
+            ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||     
+            "<=".equals(listaExpressao.get(i)) || ">=".equals(listaExpressao.get(i))){
+             
+             valida = true;
+             
+         }
+    
+    }
+     
+     for(int i=0; i<listaExpressao.size(); i++){
+         
+        if(Character.isLetter(listaExpressao.get(i).charAt(0))){
+            tipoVar =  retornaTipo(listaExpressao.get(i));
+
+            if("inteiro".equals(tipoVar) && valida == false){
+
+                throw new ExcecaoSemantico("Expressão não é compatível com o comando 'Enquanto'!");
+            }
+        }
+        
+     }
+     
+     
+ }
+ 
+ 
+  
+ public String retornaTipo(String variavel){
+     
+    //Começa pelo topo da tabela de símbolos
+    int z =simbolos.size()-1; 
+
+    while(simbolos.get(z).getEscopo() == false){
+
+
+        if(simbolos.get(z).getLexema().equals(variavel)){
+            
+            //Returna o tipo da variavel
+            return simbolos.get(z).getTipo();  
+        }
+        
+        z--;
+    }
+ 
+    return null;
+ 
+ }
+ 
+ 
  public ArrayList<String> posFixa(ArrayList<String> listaExpressao){
  
+     
+     //Teste Imprimir listaExpressao
+     
+     for(int i=0; i<listaExpressao.size(); i++){
+     
+        System.out.println(listaExpressao.get(i));
+     }
+     
+     System.out.println("\n \n");
      
      Stack<String> pilha = new Stack<>();
      
@@ -292,7 +413,7 @@ public class Semantico {
      for(int i=0; i<listaExpressao.size(); i++){
      
             
-         // Se o topo da pilha estiver vazia ou com '(', pode inserir qualquer coisa na pilha
+         // Se o topo da pilha estiver vazia, '(' e 'e', pode inserir qualquer coisa na pilha
          if((" ".equals(pilha.peek()) || "(".equals(pilha.peek()) || "e".equals(pilha.peek())) &&
              ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
              "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))   ||
@@ -342,6 +463,8 @@ public class Semantico {
              
          }
          
+         
+         
          else if("*".equals(pilha.peek()) && "(".equals(listaExpressao.get(i)) ){
              
              pilha.push(listaExpressao.get(i));
@@ -359,6 +482,26 @@ public class Semantico {
             //Para tirar o abre parenteses da pilha
             pilha.pop();
          } 
+         
+         //Trata os unarios
+         else if("-".equals(pilha.peek()) || "+".equals(pilha.peek())){
+             
+             if((i+1) < listaExpressao.size()){
+             
+                 if(!")".equals(listaExpressao.get(i+1))){
+                 
+                    int index = pilha.search(pilha.peek());
+             
+                        if("(".equals(pilha.elementAt(index-1)) || " ".equals(pilha.elementAt(index-1)) ){
+             
+                            listaSaida.add(listaExpressao.get(i) + "^unario" + pilha.peek());
+                            pilha.pop();
+                        }
+             
+                 }  
+             }
+            
+         }
          
          else{
          
@@ -389,6 +532,7 @@ public class Semantico {
 
     
  }
+ 
 
 }
      
