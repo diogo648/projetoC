@@ -16,7 +16,7 @@ public class Procedimento extends Simbolo {
     public Procedimento(){
     }
     
-    public Procedimento(String lexema, String tipo, String label, boolean escopo){
+    public Procedimento(String lexema, String tipo, boolean escopo, String label){
         
         this.lexema = lexema;
         this.tipo = tipo;
@@ -25,6 +25,12 @@ public class Procedimento extends Simbolo {
         
    
     }
+    
+     public String getLabel(){
+    
+        return label;
+    }
+    
     
     /*
     @Override   

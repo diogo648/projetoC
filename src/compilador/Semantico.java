@@ -7,6 +7,7 @@ package compilador;
 
 import Excecoes.ExcecaoSemantico;
 import Simbolos.Funcao;
+import Simbolos.Procedimento;
 import Simbolos.Programa;
 import Simbolos.Simbolo;
 import Simbolos.Variavel;
@@ -35,7 +36,7 @@ public class Semantico {
  String tipoPrincipal;
 
     
- public void insereTabela(String lexema, String tipo, boolean escopo) {
+ public void insereTabela(String lexema, String tipo, boolean escopo, String label) {
      
      
      if("nomedeprograma".equals(tipo)){
@@ -62,8 +63,7 @@ public class Semantico {
      
      if("procedimento".equals(tipo)){
      
-         String labelProc="";
-         simbolos.add(new Funcao(lexema, tipo, escopo, labelProc));
+         simbolos.add(new Procedimento(lexema, tipo, escopo, label));
      
      }
  }
@@ -172,7 +172,7 @@ public class Semantico {
  
  public boolean pesquisaDeclProc(String lexema){
  
-       int i = simbolos.size()-1;
+     int i = simbolos.size()-1;
      
      //A condição de parada é a até achar o 'nomedeprograma'
      while(!"nomedeprograma".equals(simbolos.get(i).getTipo()) ){
@@ -186,6 +186,28 @@ public class Semantico {
      }
      
      return false;
+ }
+ 
+ public String retornaLabelProc(String lexema){
+ 
+    int i = simbolos.size()-1;
+     
+     //A condição de parada é a até achar o 'nomedeprograma'
+     while(!"nomedeprograma".equals(simbolos.get(i).getTipo()) ){
+    
+         if(simbolos.get(i).getLexema().equals(lexema)){
+    
+             Object obj = simbolos.get(i);
+      
+            Procedimento proc = (Procedimento) obj;
+              
+            return proc.getLabel();
+        }
+       
+         i--;
+     }
+          
+     return null;
  }
  
  //Métodos criado para testes no compilador
@@ -488,7 +510,7 @@ public class Semantico {
              
              if((i+1) < listaExpressao.size()){
              
-                 if(!")".equals(listaExpressao.get(i+1))){
+                 if(!")".equals(listaExpressao.get(i+1)) && !" ".equals(listaExpressao.get(i+1)) ){
                  
                     int index = pilha.search(pilha.peek());
              
@@ -497,8 +519,22 @@ public class Semantico {
                             listaSaida.add(listaExpressao.get(i) + "^unario" + pilha.peek());
                             pilha.pop();
                         }
+                        
+                        else{
+                            listaSaida.add(listaExpressao.get(i));
+                        }
              
-                 }  
+                 }
+                 
+                 else{
+                 
+                     listaSaida.add(listaExpressao.get(i));
+                 }
+             }
+             
+             else{
+                    
+                 listaSaida.add(listaExpressao.get(i));
              }
             
          }

@@ -56,7 +56,7 @@ public class Sintatico{
               
               if("sidentificador".equals(tok.getSimbolo())){
                   
-                  sem.insereTabela(tok.getLexema(), "nomedeprograma", true);
+                  sem.insereTabela(tok.getLexema(), "nomedeprograma", true,"");
             
                   //Lê o próximo Token
                   tok = lex.retornaToken();
@@ -171,7 +171,7 @@ public class Sintatico{
                 if(!sem.pesquisaDuplicVar(tok.getLexema())){
                     
                     //Insere a variável na tabela de símbolos
-                    sem.insereTabela(tok.getLexema(), "variavel", false);
+                    sem.insereTabela(tok.getLexema(), "variavel", false,"");
                     
                     //Conta o número de variáveis declaradas
                     contaVar++;
@@ -607,10 +607,7 @@ public class Sintatico{
             
             if(sem.pesquisaDeclProc(tok.getLexema()) == false){
             
-            //Insere o procedimento na tabela de símbolos
-            sem.insereTabela(tok.getLexema(),"procedimento",true);
-            
-    
+           
             //Adiciona no arquivo de saída o comando 'JMP' com seu label
             geracao.addComando("JMP","L" + controlaLabel,"");
             
@@ -622,6 +619,9 @@ public class Sintatico{
             
             //Adiciona no arquivo de saída o label
             geracao.addComando("L"+controlaLabel,"NULL","");
+            
+            //Insere o procedimento na tabela de símbolos
+            sem.insereTabela(tok.getLexema(),"procedimento",true,"L"+controlaLabel);
             
             //Incrementa 1
             controlaLabel++;   
@@ -679,7 +679,7 @@ public class Sintatico{
       
       if("sidentificador".equals(tok.getSimbolo())){
           
-          sem.insereTabela(tok.getLexema(), "funcao", true);
+          sem.insereTabela(tok.getLexema(), "funcao", true,"");
           
           //Adiciona no arquivo de saída o comando 'JMP' com seu label
           geracao.addComando("JMP","L" + controlaLabel,"");
@@ -885,6 +885,12 @@ public class Sintatico{
   
   private void analisaChamadaProcedimento() throws Exception{
   
+     String label="";
+      
+    label = sem.retornaLabelProc(varAtrib);
+    
+   //Adiciona no arquivo de saída o comando 'CALL' com seu label
+   geracao.addComando("CALL",label,"");
       
   }
   
@@ -1032,6 +1038,16 @@ public class Sintatico{
         else if(">=".equals(listaExpressao.get(i))){
             //Adiciona no arquivo de saída o comando 'CMEQ'
             geracao.addComando("CMAQ","","");
+        }
+        
+        else if("=".equals(listaExpressao.get(i))){
+            //Adiciona no arquivo de saída o comando 'CMEQ'
+            geracao.addComando("CEQ","","");
+        }
+        
+        else if("ou".equals(listaExpressao.get(i))){
+            //Adiciona no arquivo de saída o comando 'CMEQ'
+            geracao.addComando("OR","","");
         }
          
         else if("e".equals(listaExpressao.get(i))){
