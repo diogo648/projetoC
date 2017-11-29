@@ -116,6 +116,13 @@ public class Semantico {
      
      int i=simbolos.size()-1;
      
+     if(simbolos.get(i).getEscopo() == true){
+     
+          simbolos.remove(i);
+          i--;
+         
+     }
+     
     while(simbolos.get(i).getEscopo() == false){
          
         variaveisRetiradas++;
@@ -123,9 +130,8 @@ public class Semantico {
          simbolos.remove(i);
           i--;
     }
-         
-  
-       
+    
+    
      return variaveisRetiradas;
 }
  
@@ -240,6 +246,11 @@ public class Semantico {
                 //Não acontece nada, por o div é palavra reservada
              }
              
+             if("nao".equals(listaExpressao.get(i))){
+                 
+                //tipos.add(listaExpressao.get(i));
+             }
+             
              else if("verdadeiro".equals(listaExpressao.get(i))){
                  
                 tipos.add("booleano");
@@ -253,7 +264,7 @@ public class Semantico {
              
              else if("e".equals(listaExpressao.get(i)) || "ou".equals(listaExpressao.get(i)) ){
              
-                 tipos.add(listaExpressao.get(i));
+                 //tipos.add(listaExpressao.get(i));
                  
              }
              
@@ -429,132 +440,134 @@ public class Semantico {
      
      ArrayList<String> listaSaida = new ArrayList<> ();
    
-     //Inicia a pilha com vazio
      pilha.push(" ");
      
      for(int i=0; i<listaExpressao.size(); i++){
      
-            
-         // Se o topo da pilha estiver vazia, '(' e 'e', pode inserir qualquer coisa na pilha
-         if((" ".equals(pilha.peek()) || "(".equals(pilha.peek()) || "e".equals(pilha.peek())) &&
-             ("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i)) || 
-             "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))   ||
-             ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i))   ||
-             ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i))  ||
-             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)) ||
-             "(".equals(listaExpressao.get(i)) || "e".equals(listaExpressao.get(i)))){
          
-             
-                pilha.push(listaExpressao.get(i));
-             
-         }     
+         //Determina as prioridades
+         int prioridadePilha=66;
+         int prioridadeLista=66;
          
-          else if(("+".equals(pilha.peek()) || "-".equals(pilha.peek())) &&
-            ("(".equals(listaExpressao.get(i)) || "*".equals(listaExpressao.get(i)) || 
-             "div".equals(listaExpressao.get(i)) || "+".equals(listaExpressao.get(i)) ||
-             "-".equals(listaExpressao.get(i)))){
+         int index = pilha.size();
          
-                pilha.push(listaExpressao.get(i));
-             
-         }
-          
-         else if((">=".equals(pilha.peek()) || "<=".equals(pilha.peek()) ||
-                  "=".equals(pilha.peek()) || "!=".equals(pilha.peek()) ||
-                  ">".equals(pilha.peek()) || "<".equals(pilha.peek())) && 
-                  (">=".equals(listaExpressao.get(i)) || ">=".equals(listaExpressao.get(i)) ||
-                   "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)) ||
-                   ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
-                   "+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
-                   ">=".equals(listaExpressao.get(i)) || ">=".equals(listaExpressao.get(i)) ||
-                   "(".equals(listaExpressao.get(i)))){
-                      
-                      pilha.push(listaExpressao.get(i));
-          }
+       if("(".equals(listaExpressao.get(i))){
+             prioridadeLista = 0;
+        }
         
+        if("*".equals(pilha.peek()) || "div".equals(pilha.peek()) ){
+             prioridadePilha = 1;
+        }
+        if("*".equals(listaExpressao.get(i)) || "div".equals(listaExpressao.get(i))){
+             prioridadeLista = 1;
+        }
+        
+        
+        if("+".equals(pilha.peek()) || "-".equals(pilha.peek()) ){
+             prioridadePilha = 2;
+        }
+         if("+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i))){
+             prioridadeLista = 2;
+        }
+        
+        
+        
+        if(">".equals(pilha.peek()) || "<".equals(pilha.peek()) ||
+           ">=".equals(pilha.peek()) || "<=".equals(pilha.peek()) || 
+           "=".equals(pilha.peek()) || "!=".equals(pilha.peek())) {
+            prioridadePilha = 3;
+        }
+        if(">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
+           ">=".equals(listaExpressao.get(i)) || "<=".equals(listaExpressao.get(i)) || 
+           "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i))) {
+            prioridadeLista = 3;
+        }
+        
+        
+        if("e".equals(pilha.peek())){
+            prioridadePilha = 4;
+        }
+        if("e".equals(listaExpressao.get(i))){
+            prioridadeLista = 4;
+        }
+        
+        
+        if("ou".equals(pilha.peek())){
+            prioridadePilha = 5;
+        }
+        if("ou".equals(listaExpressao.get(i))){
+            prioridadeLista = 5;
+        } 
+        
+        
+         if(")".equals(listaExpressao.get(i))){
+             prioridadeLista = 7;
+        }
+        
+        
+       
+        if(prioridadeLista == 66){
+            
+            listaSaida.add(listaExpressao.get(i));
+        
+        }
+        
+        //Trata unário
+        else if(prioridadeLista == 2 && "(".equals(pilha.get(index-1))){
+        
+            pilha.push(listaExpressao.get(i)+"^unario");
+            
+        
+        }
+        
+         //Se o topo da pilha estiver vazio, incluir qualquer coisa
+        else if(" ".equals(pilha.peek()) || "(".equals(pilha.peek()) ){
+        
+            pilha.push(listaExpressao.get(i));
+        
+        }
          
-          //Se o topo da pilha estiver com '*' ou 'div'
-         else if(("*".equals(pilha.peek()) || "div".equals(pilha.peek())) && 
-             ("+".equals(listaExpressao.get(i)) || "-".equals(listaExpressao.get(i)) ||
-             ">".equals(listaExpressao.get(i)) || "<".equals(listaExpressao.get(i)) ||
-             ">=".equals(listaExpressao.get(i))|| "<=".equals(listaExpressao.get(i)) ||
-             "=".equals(listaExpressao.get(i)) || "!=".equals(listaExpressao.get(i)))){
-         
-                listaSaida.add(pilha.peek()); //Adiciona o topo da pilha na lista de saida (+,-,>,<,>=,<=,=,!=)
-                pilha.pop(); //Desempilha o '*' ou 'div' do topo da pilha
-                pilha.push(listaExpressao.get(i)); //Adiciona o simbolo menos prioritário na pilha
-             
-         }
-         
-         
-         
-         else if("*".equals(pilha.peek()) && "(".equals(listaExpressao.get(i)) ){
-             
-             pilha.push(listaExpressao.get(i));
-         }
-         
-         //Se encontrar um fecha patrenteses  
-         else if(")".equals(listaExpressao.get(i))){
-         
+      
+        
+        else if(prioridadeLista == 7){
+            
             while(!"(".equals(pilha.peek())){
-                
+     
                 listaSaida.add(pilha.peek());
                 pilha.pop();
-            
             }
-            //Para tirar o abre parenteses da pilha
-            pilha.pop();
-         } 
-         
-         //Trata os unarios
-         else if("-".equals(pilha.peek()) || "+".equals(pilha.peek())){
-             
-             if((i+1) < listaExpressao.size()){
-             
-                 if(!")".equals(listaExpressao.get(i+1)) && !" ".equals(listaExpressao.get(i+1)) ){
-                 
-                    int index = pilha.search(pilha.peek());
-             
-                        if("(".equals(pilha.elementAt(index-1)) || " ".equals(pilha.elementAt(index-1)) ){
-             
-                            listaSaida.add(listaExpressao.get(i) + "^unario" + pilha.peek());
-                            pilha.pop();
-                        }
-                        
-                        else{
-                            listaSaida.add(listaExpressao.get(i));
-                        }
-             
-                 }
-                 
-                 else{
-                 
-                     listaSaida.add(listaExpressao.get(i));
-                 }
-             }
-             
-             else{
-                    
-                 listaSaida.add(listaExpressao.get(i));
-             }
             
-         }
-         
-         else{
-         
-             listaSaida.add(listaExpressao.get(i));
-         }
+            //Tira o '(' do topo da pilha
+            pilha.pop();
+        }
+        
+        else if(prioridadePilha > prioridadeLista  ){
+           
+            pilha.push(listaExpressao.get(i));
+            
+        }
+     
+        else if(prioridadePilha <= prioridadeLista){
+            
+            listaSaida.add(pilha.peek());
+            pilha.pop();
+            pilha.push(listaExpressao.get(i));
+     
+        }
         
     }
      
-     // Desmpilha a pilha até encontrar o vazio
+     
+     
+       // Desmpilha a pilha até encontrar o vazio
      while(!" ".equals(pilha.peek())){
      
          listaSaida.add(pilha.peek());
          pilha.pop();
          
      }
+         
  
-     
     for(int z=0; z< listaSaida.size(); z++){
          
       System.out.println(listaSaida.get(z));
@@ -562,7 +575,8 @@ public class Semantico {
     }
     
     System.out.println("\n \n");
-          
+      
+   
     return listaSaida;
   
 

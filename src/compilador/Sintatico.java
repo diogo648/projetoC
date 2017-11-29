@@ -71,7 +71,7 @@ public class Sintatico{
                       endInicial = endInicial -  variaveisRetiradas;
                       
                       //Adiciona no código de saída o comando 'DALLOC'
-                      geracao.addComando("DALLOC",Integer.toString(endInicial),Integer.toString(variaveisRetiradas));
+                      geracao.addComando("DALLOC",Integer.toString(variaveisRetiradas),Integer.toString(endInicial));
                       
                       if("sponto".equals(tok.getSimbolo())){
                           
@@ -698,7 +698,7 @@ public class Sintatico{
               //Lê o próximo Token
               tok = lex.retornaToken();
               
-              if("sinteiro".equals(tok.getSimbolo()) || "sinteiro".equals(tok.getSimbolo())){
+              if("sinteiro".equals(tok.getSimbolo()) || "sbooleano".equals(tok.getSimbolo())){
                   
                   //Lê o próximo Token
                   tok = lex.retornaToken();
@@ -914,14 +914,16 @@ public class Sintatico{
        //Manda a expressao para ser avaliada no posFixa e salva o resulta em outro arrayList
        listaExpressaoSaida = sem.posFixa(listaExpressao);
           
+       //Consulta o tipo
+       String tipo = sem.consultaTipo(varAtrib);
+       
        //Valida a expressao
        tipoFinal = sem.validaExpresao(listaExpressao);
        
        //Método para analisar os comandos que passaram pelo método posFixa
        avaliaListaExpressao(listaExpressaoSaida);
        
-       //Consulta o tipo
-       String tipo = sem.consultaTipo(varAtrib);
+      
        
        if(tipo == null){
        

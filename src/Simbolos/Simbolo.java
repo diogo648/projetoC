@@ -40,6 +40,10 @@ public class Simbolo  {
         return escopo;
     }
 
+    public void setEscopo(Boolean escopo){
+    
+        this.escopo = escopo;
+    }
    
     
 }
